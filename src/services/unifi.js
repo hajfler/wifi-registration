@@ -12,6 +12,10 @@ const REJECT_UNAUTHORIZED = process.env.UNIFI_REJECT_UNAUTHORIZED !== 'false';
 const httpsAgent = new https.Agent({ rejectUnauthorized: REJECT_UNAUTHORIZED });
 
 let sessionCookies = null;
+// Prefix für API-Pfade:
+// UniFi OS (UDM/UDM Pro):      /proxy/network
+// Klassischer Controller:       (leer)
+let apiPrefix = '';
 
 const client = axios.create({
   baseURL: UNIFI_HOST,
@@ -29,18 +33,22 @@ function extractCookies(response) {
 }
 
 async function login() {
-  // UniFi OS Console (UDM, UDM Pro, Cloud Key Gen2+): /api/auth/login
-  // Klassischer Controller (selbst gehostet):          /api/login
-  const endpoints = ['/api/auth/login', '/api/login'];
+  // UniFi OS Console (UDM, UDM Pro, Cloud Key Gen2+): /api/auth/login  → API prefix: /proxy/network
+  // Klassischer Controller (selbst gehostet):          /api/login       → API prefix: (leer)
+  const variants = [
+    { endpoint: '/api/auth/login', prefix: '/proxy/network' },
+    { endpoint: '/api/login',      prefix: '' },
+  ];
   let lastError;
-  for (const endpoint of endpoints) {
+  for (const { endpoint, prefix } of variants) {
     try {
       const response = await client.post(endpoint, {
         username: UNIFI_USERNAME,
         password: UNIFI_PASSWORD,
       });
       extractCookies(response);
-      console.log(`UniFi: Login erfolgreich via ${endpoint}`);
+      apiPrefix = prefix;
+      console.log(`UniFi: Login erfolgreich via ${endpoint} (API-Prefix: "${prefix || '(keiner)'}")`);
       return;
     } catch (err) {
       console.log(`UniFi: Login via ${endpoint} fehlgeschlagen (${err.response?.status ?? err.message})`);
@@ -57,7 +65,7 @@ async function ensureSession() {
   }
   // Session validieren
   try {
-    await client.get(`/proxy/network/api/s/${UNIFI_SITE}/self`, {
+    await client.get(`${apiPrefix}/api/s/${UNIFI_SITE}/self`, {
       headers: { Cookie: sessionCookies },
     });
   } catch {
@@ -69,14 +77,14 @@ async function ensureSession() {
 
 async function getWlanId() {
   await ensureSession();
-  const response = await client.get(`/proxy/network/api/s/${UNIFI_SITE}/rest/wlanconf`, {
+  const response = await client.get(`${apiPrefix}/api/s/${UNIFI_SITE}/rest/wlanconf`, {
     headers: { Cookie: sessionCookies },
   });
   extractCookies(response);
   const wlans = response.data.data;
   const wlan = wlans.find(w => w.name === UNIFI_WLAN_NAME);
   if (!wlan) {
-    throw new Error(`WLAN "${UNIFI_WLAN_NAME}" nicht im UniFi Controller gefunden. Verfügbar: ${wlans.map(w => w.name).join(', ')}`);
+    throw new Error(`WLAN "${UNIFI_WLAN_NAME}" nicht gefunden. Verfügbar: ${wlans.map(w => w.name).join(', ')}`);
   }
   return wlan._id;
 }
@@ -102,7 +110,7 @@ async function createPpsk({ firstName, lastName, email, password, expiresAt }) {
 
   // UniFi PPSK API Endpunkt
   const response = await client.post(
-    `/proxy/network/api/s/${UNIFI_SITE}/rest/psk`,
+    `${apiPrefix}/api/s/${UNIFI_SITE}/rest/psk`,
     ppskData,
     { headers: { Cookie: sessionCookies } }
   );
@@ -120,7 +128,7 @@ async function deletePpsk(ppskId) {
   await ensureSession();
   try {
     await client.delete(
-      `/proxy/network/api/s/${UNIFI_SITE}/rest/psk/${ppskId}`,
+      `${apiPrefix}/api/s/${UNIFI_SITE}/rest/psk/${ppskId}`,
       { headers: { Cookie: sessionCookies } }
     );
     console.log(`UniFi: PPSK ${ppskId} gelöscht`);
