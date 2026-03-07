@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Dependencies zuerst (besseres Layer-Caching)
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 # App-Code kopieren
 COPY . .
