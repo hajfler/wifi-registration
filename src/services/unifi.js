@@ -89,6 +89,24 @@ async function getWlanId() {
   return wlan._id;
 }
 
+async function getNetworkId() {
+  const networkName = process.env.UNIFI_NETWORK_NAME;
+  if (!networkName) return null;
+  await ensureSession();
+  const response = await client.get(`${apiPrefix}/api/s/${UNIFI_SITE}/rest/networkconf`, {
+    headers: { Cookie: sessionCookies },
+  });
+  extractCookies(response);
+  const networks = response.data.data;
+  const network = networks.find(n => n.name === networkName);
+  if (!network) {
+    console.warn(`UniFi: Netzwerk "${networkName}" nicht gefunden. Verfügbar: ${networks.map(n => n.name).join(', ')}`);
+    return null;
+  }
+  console.log(`UniFi: Netzwerk "${networkName}" gefunden (ID: ${network._id})`);
+  return network._id;
+}
+
 /**
  * Erstellt einen PPSK-Eintrag für einen User im UniFi Controller.
  * Gibt die PPSK-ID zurück.
@@ -96,14 +114,16 @@ async function getWlanId() {
  * UniFi PPSK Datenstruktur (Network Application 7.x+):
  * Der PPSK wird als Eintrag in der "private_preshared_key" Tabelle angelegt.
  */
-async function createPpsk({ firstName, lastName, password }) {
+async function createPpsk({ firstName, lastName, password, expiresAt }) {
   await ensureSession();
-  const wlanId = await getWlanId();
+  const [wlanId, networkId] = await Promise.all([getWlanId(), getNetworkId()]);
 
   const ppskData = {
     name: `${firstName} ${lastName}`,
     password,
     wlan_conf_id: wlanId,
+    ...(networkId ? { network_conf_id: networkId } : {}),
+    ...(expiresAt ? { expires: Math.floor(new Date(expiresAt).getTime() / 1000) } : {}),
   };
 
   // UniFi PPSK API Endpunkt
