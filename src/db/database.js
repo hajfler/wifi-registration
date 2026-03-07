@@ -55,4 +55,4 @@ function deactivateRegistration(id) {
   return getDb().prepare('UPDATE registrations SET is_active = 0 WHERE id = ?').run(id);
 }
 
-module.exports = { initDb, insertRegistration, findByEmail, getExpiredActiveRegistrations, deactivateRegistration };
+module.exports = { getDb, initDb, insertRegistration, findByEmail, getExpiredActiveRegistrations, deactivateRegistration };

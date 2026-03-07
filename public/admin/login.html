@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      width: 100%;
+      max-width: 380px;
+      overflow: hidden;
+    }
+    .card-header {
+      background: linear-gradient(135deg, #1a1a2e, #0f3460);
+      padding: 32px 32px 24px;
+      text-align: center;
+      color: #fff;
+    }
+    .card-header .icon { font-size: 36px; margin-bottom: 10px; display: block; }
+    .card-header h1 { font-size: 20px; font-weight: 700; }
+    .card-header p { color: #a0b4d0; font-size: 13px; margin-top: 6px; }
+    .card-body { padding: 28px 32px 32px; }
+    label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    input[type="password"] {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      background: #f8fafc;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input[type="password"]:focus {
+      border-color: #0f3460;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(15,52,96,0.12);
+    }
+    .alert {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    button {
+      width: 100%;
+      margin-top: 18px;
+      padding: 13px;
+      background: linear-gradient(135deg, #0f3460, #1a5276);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="card-header">
+      <span class="icon">🔐</span>
+      <h1>Admin-Bereich</h1>
+      <p>WLAN-Registrierungsportal</p>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="/admin/login">
+        <label for="password">Passwort</label>
+        <div id="errorBox" class="alert" style="display:none;">Falsches Passwort.</div>
+        <input type="password" id="password" name="password" autofocus placeholder="Admin-Passwort eingeben" required>
+        <button type="submit">Anmelden</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    if (new URLSearchParams(location.search).get('error')) {
+      document.getElementById('errorBox').style.display = '';
+    }
+  </script>
+</body>
+</html>

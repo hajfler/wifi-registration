@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const { initDb } = require('./src/db/database');
 const registrationRouter = require('./src/routes/registration');
+const adminRouter = require('./src/routes/admin');
 const { startScheduler } = require('./src/services/scheduler');
 
 const app = express();
@@ -28,6 +29,7 @@ const registrationLimiter = rateLimit({
 
 // Routes
 app.use('/register', registrationLimiter, registrationRouter);
+app.use('/admin', adminRouter);
 
 // Datenbankinitialisierung und Server-Start
 initDb();
