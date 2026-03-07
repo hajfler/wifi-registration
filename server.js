@@ -1,0 +1,35 @@
+require('dotenv').config();
+const express = require('express');
+const rateLimit = require('express-rate-limit');
+const path = require('path');
+const { initDb } = require('./src/db/database');
+const registrationRouter = require('./src/routes/registration');
+const { startScheduler } = require('./src/services/scheduler');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Rate Limiting: max. 5 Registrierungen pro IP pro Stunde
+const registrationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  message: { error: 'Zu viele Anfragen von dieser IP. Bitte versuche es in einer Stunde erneut.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Routes
+app.use('/register', registrationLimiter, registrationRouter);
+
+// Datenbankinitialisierung und Server-Start
+initDb();
+startScheduler();
+
+app.listen(PORT, () => {
+  console.log(`WLAN-Registrierungsportal läuft auf http://localhost:${PORT}`);
+});

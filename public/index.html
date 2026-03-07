@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WLAN-Registrierung</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="card">
+
+      <!-- Header -->
+      <div class="card-header">
+        <div class="wifi-icon">📶</div>
+        <h1>WLAN-Registrierung</h1>
+        <p>Registriere dich für den WLAN-Zugang und erhalte deine Zugangsdaten per E-Mail.</p>
+      </div>
+
+      <!-- Formular -->
+      <div class="card-body">
+        <form id="registrationForm" novalidate>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="first_name">Vorname <span class="required">*</span></label>
+              <input type="text" id="first_name" name="first_name" placeholder="Max" autocomplete="given-name" required>
+              <span class="field-error" id="err-first_name"></span>
+            </div>
+            <div class="form-group">
+              <label for="last_name">Nachname <span class="required">*</span></label>
+              <input type="text" id="last_name" name="last_name" placeholder="Mustermann" autocomplete="family-name" required>
+              <span class="field-error" id="err-last_name"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">E-Mail-Adresse <span class="required">*</span></label>
+            <input type="email" id="email" name="email" placeholder="max.mustermann@example.com" autocomplete="email" required>
+            <span class="field-error" id="err-email"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="email_confirm">E-Mail bestätigen <span class="required">*</span></label>
+            <input type="email" id="email_confirm" name="email_confirm" placeholder="E-Mail-Adresse wiederholen" autocomplete="off" required>
+            <span class="field-error" id="err-email_confirm"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Telefonnummer <span class="required">*</span></label>
+            <input type="tel" id="phone" name="phone" placeholder="+49 123 456789" autocomplete="tel" required>
+            <span class="field-error" id="err-phone"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="duration">Zugangsdauer <span class="optional">(optional)</span></label>
+            <select id="duration" name="duration">
+              <option value="permanent">Dauerhaft</option>
+              <option value="1d">1 Tag</option>
+              <option value="7d">1 Woche</option>
+              <option value="30d">1 Monat</option>
+              <option value="60d">2 Monate (Maximum)</option>
+            </select>
+            <span class="field-hint">Wie lange soll dein WLAN-Zugang gültig sein?</span>
+          </div>
+
+          <!-- Globale Fehlermeldung -->
+          <div class="alert alert-error" id="globalError" style="display:none;"></div>
+
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span class="btn-text">Registrieren & Zugangsdaten anfordern</span>
+            <span class="btn-loading" style="display:none;">
+              <span class="spinner"></span> Wird verarbeitet…
+            </span>
+          </button>
+
+          <p class="form-note">
+            <span class="required">*</span> Pflichtfelder &middot; Deine Daten werden ausschließlich für die WLAN-Verwaltung verwendet.
+          </p>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('registrationForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const globalError = document.getElementById('globalError');
+
+    function clearErrors() {
+      document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+      document.querySelectorAll('input, select').forEach(el => el.classList.remove('is-invalid'));
+      globalError.style.display = 'none';
+    }
+
+    function showFieldError(field, message) {
+      const errEl = document.getElementById(`err-${field}`);
+      const inputEl = document.getElementById(field) || document.querySelector(`[name="${field}"]`);
+      if (errEl) errEl.textContent = message;
+      if (inputEl) inputEl.classList.add('is-invalid');
+    }
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      submitBtn.querySelector('.btn-text').style.display = loading ? 'none' : '';
+      submitBtn.querySelector('.btn-loading').style.display = loading ? '' : 'none';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearErrors();
+      setLoading(true);
+
+      const data = Object.fromEntries(new FormData(form));
+
+      try {
+        const response = await fetch('/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          window.location.href = '/success.html';
+          return;
+        }
+
+        if (result.errors) {
+          result.errors.forEach(err => showFieldError(err.path, err.msg));
+        } else if (result.error) {
+          globalError.textContent = result.error;
+          globalError.style.display = '';
+        }
+      } catch {
+        globalError.textContent = 'Ein Verbindungsfehler ist aufgetreten. Bitte versuche es erneut.';
+        globalError.style.display = '';
+      }
+
+      setLoading(false);
+    });
+  </script>
+</body>
+</html>
