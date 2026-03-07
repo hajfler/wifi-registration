@@ -89,10 +89,6 @@ async function getWlan() {
   return wlan;
 }
 
-async function getWlanId() {
-  return (await getWlan())._id;
-}
-
 async function getNetworkId() {
   const networkName = process.env.UNIFI_NETWORK_NAME;
   if (!networkName) return null;
@@ -120,7 +116,7 @@ async function getNetworkId() {
  */
 async function createPpsk({ firstName, lastName, password, expiresAt }) {
   await ensureSession();
-  const [wlanId, networkId] = await Promise.all([getWlanId(), getNetworkId()]);
+  const networkId = await getNetworkId();
 
   // Vollständiges WLAN-Objekt laden um PPSK-Struktur zu verstehen
   const wlan = await getWlan();
@@ -137,7 +133,7 @@ async function createPpsk({ firstName, lastName, password, expiresAt }) {
   const existingKeys = wlan.private_preshared_keys || [];
   const newKey = {
     password,
-    network_conf_id: networkId,
+    networkconf_id: networkId,
     ...(expiresAt ? { expires: Math.floor(new Date(expiresAt).getTime() / 1000) } : {}),
   };
   const updatedKeys = [...existingKeys, newKey];
