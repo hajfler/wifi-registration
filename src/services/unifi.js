@@ -29,12 +29,25 @@ function extractCookies(response) {
 }
 
 async function login() {
-  const response = await client.post('/api/auth/login', {
-    username: UNIFI_USERNAME,
-    password: UNIFI_PASSWORD,
-  });
-  extractCookies(response);
-  console.log('UniFi: Login erfolgreich');
+  // UniFi OS Console (UDM, UDM Pro, Cloud Key Gen2+): /api/auth/login
+  // Klassischer Controller (selbst gehostet):          /api/login
+  const endpoints = ['/api/auth/login', '/api/login'];
+  let lastError;
+  for (const endpoint of endpoints) {
+    try {
+      const response = await client.post(endpoint, {
+        username: UNIFI_USERNAME,
+        password: UNIFI_PASSWORD,
+      });
+      extractCookies(response);
+      console.log(`UniFi: Login erfolgreich via ${endpoint}`);
+      return;
+    } catch (err) {
+      console.log(`UniFi: Login via ${endpoint} fehlgeschlagen (${err.response?.status ?? err.message})`);
+      lastError = err;
+    }
+  }
+  throw lastError;
 }
 
 async function ensureSession() {
