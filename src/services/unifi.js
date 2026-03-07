@@ -109,11 +109,18 @@ async function createPpsk({ firstName, lastName, email, password, expiresAt }) {
   };
 
   // UniFi PPSK API Endpunkt
-  const response = await client.post(
-    `${apiPrefix}/api/s/${UNIFI_SITE}/rest/psk`,
-    ppskData,
-    { headers: { Cookie: sessionCookies } }
-  );
+  let response;
+  try {
+    response = await client.post(
+      `${apiPrefix}/api/s/${UNIFI_SITE}/rest/psk`,
+      ppskData,
+      { headers: { Cookie: sessionCookies } }
+    );
+  } catch (err) {
+    console.error('UniFi PPSK Request-Body:', JSON.stringify(ppskData));
+    console.error('UniFi PPSK Response-Body:', JSON.stringify(err.response?.data));
+    throw err;
+  }
   extractCookies(response);
 
   const created = response.data.data?.[0];
