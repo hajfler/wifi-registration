@@ -96,7 +96,7 @@ async function getWlanId() {
  * UniFi PPSK Datenstruktur (Network Application 7.x+):
  * Der PPSK wird als Eintrag in der "private_preshared_key" Tabelle angelegt.
  */
-async function createPpsk({ firstName, lastName, email, password, expiresAt }) {
+async function createPpsk({ firstName, lastName, password }) {
   await ensureSession();
   const wlanId = await getWlanId();
 
@@ -104,8 +104,6 @@ async function createPpsk({ firstName, lastName, email, password, expiresAt }) {
     name: `${firstName} ${lastName}`,
     password,
     wlan_conf_id: wlanId,
-    ...(expiresAt ? { expires: Math.floor(new Date(expiresAt).getTime() / 1000) } : {}),
-    note: `Registrierung: ${email}`,
   };
 
   // UniFi PPSK API Endpunkt
