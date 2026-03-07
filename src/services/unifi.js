@@ -75,7 +75,7 @@ async function ensureSession() {
   }
 }
 
-async function getWlanId() {
+async function getWlan() {
   await ensureSession();
   const response = await client.get(`${apiPrefix}/api/s/${UNIFI_SITE}/rest/wlanconf`, {
     headers: { Cookie: sessionCookies },
@@ -86,7 +86,11 @@ async function getWlanId() {
   if (!wlan) {
     throw new Error(`WLAN "${UNIFI_WLAN_NAME}" nicht gefunden. Verfügbar: ${wlans.map(w => w.name).join(', ')}`);
   }
-  return wlan._id;
+  return wlan;
+}
+
+async function getWlanId() {
+  return (await getWlan())._id;
 }
 
 async function getNetworkId() {
@@ -118,38 +122,43 @@ async function createPpsk({ firstName, lastName, password, expiresAt }) {
   await ensureSession();
   const [wlanId, networkId] = await Promise.all([getWlanId(), getNetworkId()]);
 
-  // Bestehende PPSK-Einträge abrufen um die korrekte Datenstruktur zu ermitteln
-  try {
-    const existing = await client.get(`${apiPrefix}/api/s/${UNIFI_SITE}/rest/psk`, {
-      headers: { Cookie: sessionCookies },
-    });
-    console.log('UniFi PPSK Beispiel-Eintrag:', JSON.stringify(existing.data.data?.[0]));
-  } catch (err) {
-    console.log('UniFi PPSK GET fehlgeschlagen:', err.response?.status, JSON.stringify(err.response?.data));
-  }
+  // Vollständiges WLAN-Objekt laden um PPSK-Struktur zu verstehen
+  const wlan = await getWlan();
+  console.log('UniFi WLAN-Objekt (PPSK-relevante Felder):', JSON.stringify({
+    _id: wlan._id,
+    name: wlan.name,
+    private_preshared_keys: wlan.private_preshared_keys,
+    psk_group: wlan.psk_group,
+    wpa_mode: wlan.wpa_mode,
+    ...Object.fromEntries(Object.entries(wlan).filter(([k]) => k.toLowerCase().includes('psk') || k.toLowerCase().includes('password'))),
+  }));
 
-  const ppskData = {
+  // PPSK zur bestehenden Liste hinzufügen und WLAN aktualisieren
+  const existingKeys = wlan.private_preshared_keys || [];
+  const newKey = {
     password,
     network_conf_id: networkId,
+    ...(expiresAt ? { expires: Math.floor(new Date(expiresAt).getTime() / 1000) } : {}),
   };
+  const updatedKeys = [...existingKeys, newKey];
 
-  // UniFi PPSK API Endpunkt
   let response;
   try {
-    response = await client.post(
-      `${apiPrefix}/api/s/${UNIFI_SITE}/rest/psk`,
-      ppskData,
+    response = await client.put(
+      `${apiPrefix}/api/s/${UNIFI_SITE}/rest/wlanconf/${wlan._id}`,
+      { ...wlan, private_preshared_keys: updatedKeys },
       { headers: { Cookie: sessionCookies } }
     );
   } catch (err) {
-    console.error('UniFi PPSK Request-Body:', JSON.stringify(ppskData));
-    console.error('UniFi PPSK Response-Body:', JSON.stringify(err.response?.data));
+    console.error('UniFi WLAN PUT Request:', JSON.stringify({ private_preshared_keys: updatedKeys }));
+    console.error('UniFi WLAN PUT Response:', JSON.stringify(err.response?.data));
     throw err;
   }
   extractCookies(response);
 
-  const created = response.data.data?.[0];
-  return created?._id || null;
+  // ID des neuen Eintrags zurückgeben
+  const saved = response.data.data?.[0]?.private_preshared_keys?.find(k => k.password === password);
+  return saved?._id || password;
 }
 
 /**
