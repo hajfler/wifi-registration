@@ -118,12 +118,19 @@ async function createPpsk({ firstName, lastName, password, expiresAt }) {
   await ensureSession();
   const [wlanId, networkId] = await Promise.all([getWlanId(), getNetworkId()]);
 
+  // Bestehende PPSK-Einträge abrufen um die korrekte Datenstruktur zu ermitteln
+  try {
+    const existing = await client.get(`${apiPrefix}/api/s/${UNIFI_SITE}/rest/psk`, {
+      headers: { Cookie: sessionCookies },
+    });
+    console.log('UniFi PPSK Beispiel-Eintrag:', JSON.stringify(existing.data.data?.[0]));
+  } catch (err) {
+    console.log('UniFi PPSK GET fehlgeschlagen:', err.response?.status, JSON.stringify(err.response?.data));
+  }
+
   const ppskData = {
-    name: `${firstName} ${lastName}`,
     password,
-    wlan_conf_id: wlanId,
-    ...(networkId ? { network_conf_id: networkId } : {}),
-    ...(expiresAt ? { expires: Math.floor(new Date(expiresAt).getTime() / 1000) } : {}),
+    network_conf_id: networkId,
   };
 
   // UniFi PPSK API Endpunkt
