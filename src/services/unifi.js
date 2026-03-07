@@ -102,9 +102,9 @@ async function createPpsk({ firstName, lastName, email, password, expiresAt }) {
 
   const ppskData = {
     name: `${firstName} ${lastName}`,
-    passphrase: password,
-    wlan_id: wlanId,
-    ...(expiresAt ? { end_time: Math.floor(new Date(expiresAt).getTime() / 1000) } : {}),
+    password,
+    wlan_conf_id: wlanId,
+    ...(expiresAt ? { expires: Math.floor(new Date(expiresAt).getTime() / 1000) } : {}),
     note: `Registrierung: ${email}`,
   };
 
