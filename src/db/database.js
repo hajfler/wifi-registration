@@ -44,6 +44,29 @@ function findByEmail(email) {
   return getDb().prepare('SELECT * FROM registrations WHERE email = ?').get(email);
 }
 
+// Gibt nur aktive, noch nicht abgelaufene Registrierungen zurück
+function findActiveByEmail(email) {
+  return getDb().prepare(`
+    SELECT * FROM registrations
+    WHERE email = ?
+      AND is_active = 1
+      AND (expires_at IS NULL OR expires_at > datetime('now'))
+  `).get(email);
+}
+
+function upsertRegistration({ first_name, last_name, email, phone, password, unifi_ppsk_id, expires_at }) {
+  const existing = findByEmail(email);
+  if (existing) {
+    return getDb().prepare(`
+      UPDATE registrations
+      SET first_name = ?, last_name = ?, phone = ?, password = ?,
+          unifi_ppsk_id = ?, expires_at = ?, is_active = 1, created_at = CURRENT_TIMESTAMP
+      WHERE email = ?
+    `).run(first_name, last_name, phone, password, unifi_ppsk_id, expires_at, email);
+  }
+  return insertRegistration({ first_name, last_name, email, phone, password, unifi_ppsk_id, expires_at });
+}
+
 function getExpiredActiveRegistrations() {
   return getDb().prepare(`
     SELECT * FROM registrations
@@ -55,4 +78,4 @@ function deactivateRegistration(id) {
   return getDb().prepare('UPDATE registrations SET is_active = 0 WHERE id = ?').run(id);
 }
 
-module.exports = { getDb, initDb, insertRegistration, findByEmail, getExpiredActiveRegistrations, deactivateRegistration };
+module.exports = { getDb, initDb, insertRegistration, upsertRegistration, findByEmail, findActiveByEmail, getExpiredActiveRegistrations, deactivateRegistration };

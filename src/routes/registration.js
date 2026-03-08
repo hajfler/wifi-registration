@@ -1,7 +1,7 @@
 const express = require('express');
 const crypto = require('crypto');
 const { body, validationResult } = require('express-validator');
-const { insertRegistration, findByEmail } = require('../db/database');
+const { upsertRegistration, findActiveByEmail } = require('../db/database');
 const { createPpsk } = require('../services/unifi');
 const { generateWifiQrCode } = require('../services/qrcode');
 const { sendWifiCredentials } = require('../services/email');
@@ -55,9 +55,9 @@ router.post('/', validators, async (req, res) => {
 
   const { first_name, last_name, email, phone, duration = 'permanent' } = req.body;
 
-  // Doppelregistrierung prüfen
-  if (findByEmail(email)) {
-    return res.status(409).json({ error: 'Diese E-Mail-Adresse ist bereits registriert.' });
+  // Doppelregistrierung prüfen – nur blockieren wenn noch aktiv & nicht abgelaufen
+  if (findActiveByEmail(email)) {
+    return res.status(409).json({ error: 'Diese E-Mail-Adresse ist bereits registriert und der Zugang ist noch aktiv.' });
   }
 
   const password = generatePassword();
@@ -78,8 +78,8 @@ router.post('/', validators, async (req, res) => {
     return res.status(502).json({ error: 'WLAN-Zugang konnte nicht angelegt werden. Bitte wende dich an den Administrator.' });
   }
 
-  // In Datenbank speichern
-  insertRegistration({ first_name, last_name, email, phone, password, unifi_ppsk_id, expires_at: expiresAt });
+  // In Datenbank speichern (Update wenn E-Mail bereits existiert, sonst Insert)
+  upsertRegistration({ first_name, last_name, email, phone, password, unifi_ppsk_id, expires_at: expiresAt });
 
   // QR-Code generieren und E-Mail senden
   try {
