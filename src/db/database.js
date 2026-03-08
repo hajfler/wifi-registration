@@ -15,12 +15,38 @@ function getDb() {
 
 function initDb() {
   const database = getDb();
+
+  // Migration: UNIQUE-Constraint auf email entfernen (für vollständigen Registrierungsverlauf)
+  const tableInfo = database.prepare(
+    "SELECT sql FROM sqlite_master WHERE type='table' AND name='registrations'"
+  ).get();
+  if (tableInfo && tableInfo.sql.includes('UNIQUE')) {
+    database.exec(`
+      CREATE TABLE registrations_new (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        first_name   TEXT NOT NULL,
+        last_name    TEXT NOT NULL,
+        email        TEXT NOT NULL,
+        phone        TEXT NOT NULL,
+        password     TEXT NOT NULL,
+        unifi_ppsk_id TEXT,
+        expires_at   DATETIME,
+        is_active    INTEGER DEFAULT 1,
+        created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+      INSERT INTO registrations_new SELECT * FROM registrations;
+      DROP TABLE registrations;
+      ALTER TABLE registrations_new RENAME TO registrations;
+    `);
+    console.log('Datenbank migriert: email-UNIQUE entfernt, Registrierungsverlauf aktiviert');
+  }
+
   database.exec(`
     CREATE TABLE IF NOT EXISTS registrations (
       id           INTEGER PRIMARY KEY AUTOINCREMENT,
       first_name   TEXT NOT NULL,
       last_name    TEXT NOT NULL,
-      email        TEXT NOT NULL UNIQUE,
+      email        TEXT NOT NULL,
       phone        TEXT NOT NULL,
       password     TEXT NOT NULL,
       unifi_ppsk_id TEXT,
@@ -33,11 +59,10 @@ function initDb() {
 }
 
 function insertRegistration({ first_name, last_name, email, phone, password, unifi_ppsk_id, expires_at }) {
-  const stmt = getDb().prepare(`
+  return getDb().prepare(`
     INSERT INTO registrations (first_name, last_name, email, phone, password, unifi_ppsk_id, expires_at)
     VALUES (?, ?, ?, ?, ?, ?, ?)
-  `);
-  return stmt.run(first_name, last_name, email, phone, password, unifi_ppsk_id, expires_at);
+  `).run(first_name, last_name, email, phone, password, unifi_ppsk_id, expires_at);
 }
 
 function findByEmail(email) {
@@ -54,17 +79,11 @@ function findActiveByEmail(email) {
   `).get(email);
 }
 
-function upsertRegistration({ first_name, last_name, email, phone, password, unifi_ppsk_id, expires_at }) {
-  const existing = findByEmail(email);
-  if (existing) {
-    return getDb().prepare(`
-      UPDATE registrations
-      SET first_name = ?, last_name = ?, phone = ?, password = ?,
-          unifi_ppsk_id = ?, expires_at = ?, is_active = 1, created_at = CURRENT_TIMESTAMP
-      WHERE email = ?
-    `).run(first_name, last_name, phone, password, unifi_ppsk_id, expires_at, email);
-  }
-  return insertRegistration({ first_name, last_name, email, phone, password, unifi_ppsk_id, expires_at });
+// Markiert alle aktiven Einträge einer E-Mail als inaktiv (vor Neuregistrierung)
+function deactivateAllByEmail(email) {
+  return getDb().prepare(
+    'UPDATE registrations SET is_active = 0 WHERE email = ? AND is_active = 1'
+  ).run(email);
 }
 
 function getExpiredActiveRegistrations() {
@@ -78,4 +97,13 @@ function deactivateRegistration(id) {
   return getDb().prepare('UPDATE registrations SET is_active = 0 WHERE id = ?').run(id);
 }
 
-module.exports = { getDb, initDb, insertRegistration, upsertRegistration, findByEmail, findActiveByEmail, getExpiredActiveRegistrations, deactivateRegistration };
+module.exports = {
+  getDb,
+  initDb,
+  insertRegistration,
+  findByEmail,
+  findActiveByEmail,
+  deactivateAllByEmail,
+  getExpiredActiveRegistrations,
+  deactivateRegistration,
+};
