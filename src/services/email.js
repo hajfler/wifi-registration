@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const TEMPLATE_PATH = path.join(__dirname, '../templates/email.html');
+const LOGO_PATH = path.join(__dirname, '../../public/assets/logo.svg');
 
 let transporter;
 
@@ -60,6 +61,12 @@ async function sendWifiCredentials({ to, firstName, lastName, ssid, password, ex
         content: Buffer.from(qrCodeBase64, 'base64'),
         contentType: 'image/png',
         cid: 'wifiQrCode',
+      },
+      {
+        filename: 'logo.svg',
+        path: LOGO_PATH,
+        contentType: 'image/svg+xml',
+        cid: 'schoolLogo',
       },
     ],
   });

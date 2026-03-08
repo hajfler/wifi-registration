@@ -5,28 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Deine WLAN-Zugangsdaten</title>
 </head>
-<body style="margin:0;padding:0;background:#f0f4f8;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4f8;padding:40px 20px;">
+<body style="margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f7;padding:40px 20px;">
     <tr>
       <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+        <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.08);">
 
-          <!-- Header -->
+          <!-- Header mit Logo -->
           <tr>
-            <td style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);padding:40px 40px 30px;text-align:center;">
-              <div style="font-size:36px;margin-bottom:8px;">📶</div>
-              <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:-0.5px;">WLAN-Zugangsdaten</h1>
-              <p style="margin:8px 0 0;color:#a0b4d0;font-size:15px;">Deine persönlichen Zugangsdaten sind bereit</p>
+            <td style="background:#ffffff;padding:36px 40px 28px;text-align:center;border-bottom:2px solid #745BA3;">
+              <img src="cid:schoolLogo" alt="Schule Dietlikon" width="193" height="46"
+                   style="display:block;margin:0 auto 20px;max-width:193px;">
+              <h1 style="margin:0;color:#1d1d1b;font-size:22px;font-weight:700;letter-spacing:-0.4px;">WLAN-Zugangsdaten</h1>
+              <p style="margin:6px 0 0;color:#6e6e73;font-size:14px;">Deine persönlichen Zugangsdaten sind bereit</p>
             </td>
           </tr>
 
           <!-- Begrüßung -->
           <tr>
             <td style="padding:32px 40px 0;">
-              <p style="margin:0;color:#374151;font-size:16px;line-height:1.6;">
+              <p style="margin:0;color:#1d1d1b;font-size:16px;line-height:1.6;">
                 Hallo <strong>{{FIRST_NAME}} {{LAST_NAME}}</strong>,
               </p>
-              <p style="margin:12px 0 0;color:#374151;font-size:15px;line-height:1.6;">
+              <p style="margin:10px 0 0;color:#3a3a3c;font-size:15px;line-height:1.6;">
                 deine Registrierung war erfolgreich. Hier sind deine persönlichen WLAN-Zugangsdaten:
               </p>
             </td>
@@ -35,23 +36,23 @@
           <!-- Zugangsdaten Box -->
           <tr>
             <td style="padding:24px 40px;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f7;border-radius:12px;overflow:hidden;">
                 <tr>
-                  <td style="padding:20px 24px;border-bottom:1px solid #e2e8f0;">
-                    <p style="margin:0;color:#64748b;font-size:12px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Netzwerkname (SSID)</p>
-                    <p style="margin:4px 0 0;color:#1e293b;font-size:20px;font-weight:700;font-family:monospace;">{{SSID}}</p>
+                  <td style="padding:18px 24px;border-bottom:1px solid #e5e5ea;">
+                    <p style="margin:0;color:#6e6e73;font-size:11px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;">Netzwerkname (SSID)</p>
+                    <p style="margin:4px 0 0;color:#1d1d1b;font-size:20px;font-weight:700;font-family:monospace;">{{SSID}}</p>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:20px 24px;border-bottom:1px solid #e2e8f0;">
-                    <p style="margin:0;color:#64748b;font-size:12px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Passwort</p>
-                    <p style="margin:4px 0 0;color:#0f3460;font-size:22px;font-weight:700;font-family:monospace;letter-spacing:2px;">{{PASSWORD}}</p>
+                  <td style="padding:18px 24px;border-bottom:1px solid #e5e5ea;">
+                    <p style="margin:0;color:#6e6e73;font-size:11px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;">Passwort</p>
+                    <p style="margin:4px 0 0;color:#745BA3;font-size:22px;font-weight:700;font-family:monospace;letter-spacing:2px;">{{PASSWORD}}</p>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:20px 24px;">
-                    <p style="margin:0;color:#64748b;font-size:12px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Gültig bis</p>
-                    <p style="margin:4px 0 0;color:#1e293b;font-size:16px;font-weight:600;">{{EXPIRES}}</p>
+                  <td style="padding:18px 24px;">
+                    <p style="margin:0;color:#6e6e73;font-size:11px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;">Gültig bis</p>
+                    <p style="margin:4px 0 0;color:#1d1d1b;font-size:16px;font-weight:600;">{{EXPIRES}}</p>
                   </td>
                 </tr>
               </table>
@@ -61,13 +62,13 @@
           <!-- QR-Code -->
           <tr>
             <td style="padding:0 40px 32px;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#1a1a2e;border-radius:10px;overflow:hidden;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f0f9;border-radius:12px;overflow:hidden;">
                 <tr>
                   <td style="padding:28px;text-align:center;">
-                    <p style="margin:0 0 16px;color:#a0b4d0;font-size:13px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">QR-Code scannen</p>
+                    <p style="margin:0 0 16px;color:#745BA3;font-size:12px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;">QR-Code scannen</p>
                     <img src="cid:wifiQrCode" alt="WLAN QR-Code" width="200" height="200"
-                         style="display:block;margin:0 auto;border:6px solid #ffffff;border-radius:8px;background:#fff;">
-                    <p style="margin:16px 0 0;color:#64748b;font-size:12px;line-height:1.5;">
+                         style="display:block;margin:0 auto;border:6px solid #ffffff;border-radius:10px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                    <p style="margin:16px 0 0;color:#6e6e73;font-size:13px;line-height:1.5;">
                       Öffne die Kamera-App deines Smartphones<br>und halte sie auf den QR-Code.
                     </p>
                   </td>
@@ -79,17 +80,17 @@
           <!-- Anleitung -->
           <tr>
             <td style="padding:0 40px 32px;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f0f9;border:1px solid #d3c9ec;border-radius:12px;">
                 <tr>
                   <td style="padding:20px 24px;">
-                    <p style="margin:0 0 12px;color:#1d4ed8;font-size:13px;font-weight:700;letter-spacing:0.3px;">SO VERBINDEST DU DICH</p>
-                    <p style="margin:0 0 8px;color:#374151;font-size:14px;line-height:1.6;">
+                    <p style="margin:0 0 12px;color:#745BA3;font-size:12px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;">So verbindest du dich</p>
+                    <p style="margin:0 0 10px;color:#3a3a3c;font-size:14px;line-height:1.6;">
                       <strong>Option 1 – QR-Code:</strong><br>
                       Scanne den QR-Code mit deiner Smartphone-Kamera. Die Verbindung wird automatisch hergestellt.
                     </p>
-                    <p style="margin:0;color:#374151;font-size:14px;line-height:1.6;">
+                    <p style="margin:0;color:#3a3a3c;font-size:14px;line-height:1.6;">
                       <strong>Option 2 – Manuell:</strong><br>
-                      Gehe zu <em>Einstellungen → WLAN</em>, wähle <em>{{SSID}}</em> und gib das Passwort oben ein.
+                      Gehe zu <em>Einstellungen &rarr; WLAN</em>, wähle <em>{{SSID}}</em> und gib das Passwort oben ein.
                     </p>
                   </td>
                 </tr>
@@ -100,18 +101,18 @@
           <!-- Hinweis -->
           <tr>
             <td style="padding:0 40px 32px;">
-              <p style="margin:0;color:#94a3b8;font-size:13px;line-height:1.6;text-align:center;">
+              <p style="margin:0;color:#aeaeb2;font-size:13px;line-height:1.6;text-align:center;">
                 Bitte teile diese Zugangsdaten nicht mit Dritten.<br>
-                Bei Fragen wende dich an deinen Administrator.
+                Bei Fragen wende dich an das Sekretariat.
               </p>
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 40px;text-align:center;">
-              <p style="margin:0;color:#94a3b8;font-size:12px;">
-                &copy; {{YEAR}} WLAN-Registrierungsportal &middot; Automatisch generierte E-Mail
+            <td style="background:#f5f5f7;border-top:1px solid #e5e5ea;padding:20px 40px;text-align:center;">
+              <p style="margin:0;color:#aeaeb2;font-size:12px;">
+                &copy; {{YEAR}} Schule Dietlikon &middot; Automatisch generierte E-Mail
               </p>
             </td>
           </tr>

@@ -53,7 +53,7 @@ router.post('/', validators, async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { first_name, last_name, email, phone, duration = 'permanent' } = req.body;
+  const { first_name, last_name, email, phone, duration = '1d' } = req.body;
 
   // Doppelregistrierung prüfen – nur blockieren wenn noch aktiv & nicht abgelaufen
   if (findActiveByEmail(email)) {
