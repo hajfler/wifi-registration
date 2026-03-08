@@ -3,23 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WLAN-Registrierung</title>
+  <title>WLAN-Registrierung – Schule Dietlikon</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
   <div class="page-wrapper">
+
+    <header class="site-header">
+      <img src="/assets/logo.svg" alt="Schule Dietlikon" width="193" height="46">
+    </header>
+
     <div class="card">
 
-      <!-- Header -->
       <div class="card-header">
-        <div class="wifi-icon">📶</div>
+        <div class="page-icon">📶</div>
         <h1>WLAN-Registrierung</h1>
         <p>Registriere dich für den WLAN-Zugang und erhalte deine Zugangsdaten per E-Mail.</p>
       </div>
 
-      <!-- Formular -->
       <div class="card-body">
         <form id="registrationForm" novalidate>
 
@@ -50,7 +53,7 @@
 
           <div class="form-group">
             <label for="phone">Telefonnummer <span class="required">*</span></label>
-            <input type="tel" id="phone" name="phone" placeholder="+49 123 456789" autocomplete="tel" required>
+            <input type="tel" id="phone" name="phone" placeholder="+41 79 123 45 67" autocomplete="tel" required>
             <span class="field-error" id="err-phone"></span>
           </div>
 
@@ -66,13 +69,12 @@
             <span class="field-hint">Wie lange soll dein WLAN-Zugang gültig sein?</span>
           </div>
 
-          <!-- Globale Fehlermeldung -->
           <div class="alert alert-error" id="globalError" style="display:none;"></div>
 
           <button type="submit" class="btn-submit" id="submitBtn">
-            <span class="btn-text">Registrieren & Zugangsdaten anfordern</span>
+            <span class="btn-text">Registrieren &amp; Zugangsdaten anfordern</span>
             <span class="btn-loading" style="display:none;">
-              <span class="spinner"></span> Wird verarbeitet…
+              <span class="spinner"></span>Wird verarbeitet…
             </span>
           </button>
 
