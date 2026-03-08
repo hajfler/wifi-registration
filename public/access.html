@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zugang – WLAN-Registrierung</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="card">
+
+      <div class="card-header">
+        <div class="wifi-icon">🔑</div>
+        <h1>Zugang zur Registrierung</h1>
+        <p>Bitte gib den Zugangscode ein, um dich für das WLAN zu registrieren.</p>
+      </div>
+
+      <div class="card-body">
+        <form method="POST" action="/access">
+          <div class="form-group">
+            <label for="password">Zugangscode <span class="required">*</span></label>
+            <div class="alert alert-error" id="errorBox" style="display:none;">
+              Falscher Zugangscode. Bitte versuche es erneut.
+            </div>
+            <input type="password" id="password" name="password" placeholder="Zugangscode eingeben" autofocus required>
+          </div>
+          <button type="submit" class="btn-submit">Weiter zur Registrierung</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+  <script>
+    if (new URLSearchParams(location.search).get('error')) {
+      document.getElementById('errorBox').style.display = '';
+    }
+  </script>
+</body>
+</html>
