@@ -126,6 +126,13 @@
           body: JSON.stringify(data),
         });
 
+        if (response.status === 403) {
+          globalError.textContent = 'Dieser Dienst ist nur aus dem Schulnetzwerk erreichbar.';
+          globalError.style.display = '';
+          setLoading(false);
+          return;
+        }
+
         const result = await response.json();
 
         if (response.ok && result.success) {
