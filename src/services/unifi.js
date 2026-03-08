@@ -158,19 +158,31 @@ async function createPpsk({ firstName, lastName, password, expiresAt }) {
 }
 
 /**
- * Deaktiviert/löscht einen PPSK-Eintrag anhand der ID.
+ * Löscht einen PPSK-Eintrag aus dem WLAN.
+ * ppskId kann die _id oder das Passwort des Eintrags sein.
  */
 async function deletePpsk(ppskId) {
   if (!ppskId) return;
   await ensureSession();
+  const wlan = await getWlan();
+  const existingKeys = wlan.private_preshared_keys || [];
+  const filteredKeys = existingKeys.filter(k => k._id !== ppskId && k.password !== ppskId);
+
+  if (filteredKeys.length === existingKeys.length) {
+    console.warn(`UniFi: PPSK "${ppskId}" nicht gefunden – kein Eintrag gelöscht`);
+    return;
+  }
+
   try {
-    await client.delete(
-      `${apiPrefix}/api/s/${UNIFI_SITE}/rest/psk/${ppskId}`,
+    await client.put(
+      `${apiPrefix}/api/s/${UNIFI_SITE}/rest/wlanconf/${wlan._id}`,
+      { ...wlan, private_preshared_keys: filteredKeys },
       { headers: { Cookie: sessionCookies } }
     );
-    console.log(`UniFi: PPSK ${ppskId} gelöscht`);
+    console.log(`UniFi: PPSK "${ppskId}" erfolgreich gelöscht`);
   } catch (err) {
     console.error(`UniFi: Fehler beim Löschen von PPSK ${ppskId}:`, err.message);
+    throw err;
   }
 }
 
