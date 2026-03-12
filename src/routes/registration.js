@@ -16,6 +16,7 @@ const DURATION_MAP = {
   '7d': 7,
   '30d': 30,
   '60d': 60,
+  '180d': 180,
   'permanent': null,
 };
 

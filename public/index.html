@@ -63,7 +63,8 @@
               <option value="1d">1 Tag</option>
               <option value="7d">1 Woche</option>
               <option value="30d">1 Monat</option>
-              <option value="60d">2 Monate (Maximum)</option>
+              <option value="60d">2 Monate</option>
+              <option value="180d">6 Monate (Maximum)</option>
             </select>
             <span class="field-hint">Wie lange soll dein WLAN-Zugang gültig sein?</span>
           </div>
@@ -90,9 +91,14 @@
   </div>
 
   <script>
-    // Token aus URL lesen und in Hidden-Field schreiben
-    const magicToken = new URLSearchParams(location.search).get('token') || '';
-    document.getElementById('magic_token').value = magicToken;
+    // Token und E-Mail aus URL lesen
+    const urlParams = new URLSearchParams(location.search);
+    document.getElementById('magic_token').value = urlParams.get('token') || '';
+    const prefillEmail = urlParams.get('email') || '';
+    if (prefillEmail) {
+      document.getElementById('email').value = prefillEmail;
+      document.getElementById('email_confirm').value = prefillEmail;
+    }
 
     const form = document.getElementById('registrationForm');
     const submitBtn = document.getElementById('submitBtn');

@@ -37,7 +37,7 @@ router.post('/request', requestLimiter, [
 
   try {
     const token = createMagicLink(email);
-    const magicLinkUrl = `${baseUrl}/?token=${token}`;
+    const magicLinkUrl = `${baseUrl}/?token=${token}&email=${encodeURIComponent(email)}`;
     await sendMagicLink({ to: email, magicLinkUrl });
   } catch (err) {
     console.error('Magic Link Fehler:', err.message);
