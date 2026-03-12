@@ -55,6 +55,17 @@ function initDb() {
       created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS magic_links (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      token      TEXT NOT NULL UNIQUE,
+      email      TEXT NOT NULL,
+      expires_at DATETIME NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   console.log('Datenbank initialisiert:', DB_PATH);
 }
 
@@ -97,6 +108,28 @@ function deactivateRegistration(id) {
   return getDb().prepare('UPDATE registrations SET is_active = 0 WHERE id = ?').run(id);
 }
 
+const crypto = require('crypto');
+
+function createMagicLink(email) {
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  getDb().prepare(
+    'INSERT INTO magic_links (token, email, expires_at) VALUES (?, ?, ?)'
+  ).run(token, email, expiresAt);
+  return token;
+}
+
+function findValidMagicLink(token) {
+  return getDb().prepare(`
+    SELECT * FROM magic_links
+    WHERE token = ? AND expires_at > datetime('now')
+  `).get(token);
+}
+
+function deleteExpiredMagicLinks() {
+  return getDb().prepare("DELETE FROM magic_links WHERE expires_at <= datetime('now')").run();
+}
+
 module.exports = {
   getDb,
   initDb,
@@ -106,4 +139,7 @@ module.exports = {
   deactivateAllByEmail,
   getExpiredActiveRegistrations,
   deactivateRegistration,
+  createMagicLink,
+  findValidMagicLink,
+  deleteExpiredMagicLinks,
 };

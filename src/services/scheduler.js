@@ -1,5 +1,5 @@
 const cron = require('node-cron');
-const { getExpiredActiveRegistrations, deactivateRegistration } = require('../db/database');
+const { getExpiredActiveRegistrations, deactivateRegistration, deleteExpiredMagicLinks } = require('../db/database');
 const { deletePpsk } = require('./unifi');
 
 async function processExpiredRegistrations() {
@@ -27,6 +27,8 @@ function startScheduler() {
   cron.schedule('0 2 * * *', async () => {
     console.log('Scheduler: Starte Prüfung auf abgelaufene WLAN-Zugänge...');
     await processExpiredRegistrations();
+    const result = deleteExpiredMagicLinks();
+    console.log(`Scheduler: ${result.changes} abgelaufene Magic-Links gelöscht.`);
   });
   console.log('Scheduler: Aktiv – prüft täglich um 02:00 Uhr auf abgelaufene Zugänge');
 }

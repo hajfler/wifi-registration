@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zugriffslink anfordern – Schule Dietlikon WLAN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <div class="page-wrapper">
+
+    <header class="site-header">
+      <img src="/assets/logo.svg" alt="Schule Dietlikon" width="193" height="46">
+    </header>
+
+    <div class="card">
+
+      <div class="card-header">
+        <div class="page-icon">✉️</div>
+        <h1>Zugriffslink anfordern</h1>
+        <p>Gib deine E-Mail-Adresse ein. Du erhältst einen Link, der für 24 Stunden Zugang zum WLAN-Registrierungsformular gewährt.</p>
+      </div>
+
+      <div class="card-body" id="formSection">
+        <form id="magicLinkForm" novalidate>
+          <div class="form-group">
+            <label for="email">E-Mail-Adresse <span class="required">*</span></label>
+            <input type="email" id="email" name="email" placeholder="deine@email.ch" autocomplete="email" autofocus required>
+            <span class="field-error" id="err-email"></span>
+          </div>
+
+          <div class="alert alert-error" id="globalError" style="display:none;"></div>
+
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span class="btn-text">Zugriffslink senden</span>
+            <span class="btn-loading" style="display:none;">
+              <span class="spinner"></span>Wird gesendet…
+            </span>
+          </button>
+        </form>
+      </div>
+
+      <div class="card-body" id="successSection" style="display:none;text-align:center;padding-bottom:32px;">
+        <div style="font-size:48px;margin-bottom:16px;">📬</div>
+        <h2 style="margin:0 0 12px;color:#1d1d1b;font-size:20px;font-weight:700;">E-Mail gesendet</h2>
+        <p style="color:#6e6e73;margin:0;line-height:1.6;">
+          Falls diese E-Mail-Adresse gültig ist, hast du soeben einen Zugriffslink erhalten.<br>
+          Der Link ist 24 Stunden gültig.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+
+    // Weitergeleitet von WordPress-Formular nach erfolgreichem POST
+    if (params.get('sent') === '1') {
+      document.getElementById('formSection').style.display = 'none';
+      document.getElementById('successSection').style.display = '';
+    }
+
+    // Fehler vom WordPress-Formular
+    if (params.get('error') === 'email') {
+      document.getElementById('err-email').textContent = 'Bitte eine gültige E-Mail-Adresse eingeben.';
+      document.getElementById('email').classList.add('is-invalid');
+    }
+
+    const form = document.getElementById('magicLinkForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const globalError = document.getElementById('globalError');
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      submitBtn.querySelector('.btn-text').style.display = loading ? 'none' : '';
+      submitBtn.querySelector('.btn-loading').style.display = loading ? '' : 'none';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      document.getElementById('err-email').textContent = '';
+      globalError.style.display = 'none';
+      setLoading(true);
+
+      const email = document.getElementById('email').value.trim();
+
+      try {
+        const response = await fetch('/magic-link/request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          document.getElementById('formSection').style.display = 'none';
+          document.getElementById('successSection').style.display = '';
+          return;
+        }
+
+        if (result.errors) {
+          result.errors.forEach(err => {
+            document.getElementById('err-email').textContent = err.msg;
+            document.getElementById('email').classList.add('is-invalid');
+          });
+        } else {
+          globalError.textContent = result.error || 'Ein Fehler ist aufgetreten.';
+          globalError.style.display = '';
+        }
+      } catch {
+        globalError.textContent = 'Ein Verbindungsfehler ist aufgetreten. Bitte versuche es erneut.';
+        globalError.style.display = '';
+      }
+
+      setLoading(false);
+    });
+  </script>
+</body>
+</html>

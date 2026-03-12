@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const TEMPLATE_PATH = path.join(__dirname, '../templates/email.html');
+const MAGIC_LINK_TEMPLATE_PATH = path.join(__dirname, '../templates/magic-link-email.html');
 const LOGO_PATH = path.join(__dirname, '../../public/assets/logo.svg');
 
 let transporter;
@@ -74,4 +75,27 @@ async function sendWifiCredentials({ to, firstName, lastName, ssid, password, ex
   console.log(`E-Mail mit WLAN-Zugangsdaten gesendet an: ${to}`);
 }
 
-module.exports = { sendWifiCredentials };
+async function sendMagicLink({ to, magicLinkUrl }) {
+  let html = fs.readFileSync(MAGIC_LINK_TEMPLATE_PATH, 'utf-8');
+  html = html.replaceAll('{{MAGIC_LINK_URL}}', magicLinkUrl);
+  html = html.replaceAll('{{YEAR}}', new Date().getFullYear());
+
+  await getTransporter().sendMail({
+    from: process.env.SMTP_FROM,
+    to,
+    subject: 'Dein Zugriffslink für die WLAN-Registrierung',
+    html,
+    attachments: [
+      {
+        filename: 'logo.svg',
+        path: LOGO_PATH,
+        contentType: 'image/svg+xml',
+        cid: 'schoolLogo',
+      },
+    ],
+  });
+
+  console.log(`Magic Link E-Mail gesendet an: ${to}`);
+}
+
+module.exports = { sendWifiCredentials, sendMagicLink };

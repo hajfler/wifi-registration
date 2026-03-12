@@ -68,6 +68,8 @@
             <span class="field-hint">Wie lange soll dein WLAN-Zugang gültig sein?</span>
           </div>
 
+          <input type="hidden" id="magic_token" name="token" value="">
+
           <div class="alert alert-error" id="globalError" style="display:none;"></div>
 
           <button type="submit" class="btn-submit" id="submitBtn">
@@ -88,6 +90,10 @@
   </div>
 
   <script>
+    // Token aus URL lesen und in Hidden-Field schreiben
+    const magicToken = new URLSearchParams(location.search).get('token') || '';
+    document.getElementById('magic_token').value = magicToken;
+
     const form = document.getElementById('registrationForm');
     const submitBtn = document.getElementById('submitBtn');
     const globalError = document.getElementById('globalError');
@@ -126,7 +132,7 @@
         });
 
         if (response.status === 403) {
-          globalError.textContent = 'Dieser Dienst ist nur aus dem Schulnetzwerk erreichbar.';
+          globalError.textContent = 'Dein Zugriffslink ist abgelaufen oder ungültig. Bitte fordere einen neuen Link an.';
           globalError.style.display = '';
           setLoading(false);
           return;
