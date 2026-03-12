@@ -1,4 +1,4 @@
-# WLAN-Registrierungsportal – Schule Dietlikon
+# WLAN-Registrierungsportal – Meine Schule
 
 Ein selbst gehostetes Portal zur WLAN-Registrierung mit automatischer UniFi PPSK-Verwaltung. Der Zugang zum Registrierungsformular ist über einen zeitbegrenzten Magic Link geschützt.
 
@@ -54,7 +54,7 @@ Benutzer klickt Link in E-Mail (24h gültig)
 
 ```bash
 # Repository klonen
-git clone https://github.com/hajfler/wifi-registration.git
+git clone https://github.com/dein-github-user/wifi-registration.git
 cd wifi-registration
 
 # Abhängigkeiten installieren
@@ -87,22 +87,22 @@ docker run -d \
 ```env
 # Server
 PORT=3000
-BASE_URL=https://wlan-zugang.schule-dietlikon.ch
+BASE_URL=https://wlan-zugang.example.com
 
 # UniFi
 UNIFI_URL=https://192.168.1.1
 UNIFI_USERNAME=admin
 UNIFI_PASSWORD=secret
 UNIFI_SITE=default
-UNIFI_WLAN_NAME=Schule-Dietlikon-Gast
+UNIFI_WLAN_NAME=Schule-Gast
 
 # SMTP
 SMTP_HOST=smtp.example.com
 SMTP_PORT=587
 SMTP_SECURE=false
-SMTP_USER=wlan@schule-dietlikon.ch
+SMTP_USER=wlan@example.com
 SMTP_PASS=secret
-SMTP_FROM="Schule Dietlikon WLAN <wlan@schule-dietlikon.ch>"
+SMTP_FROM="Meine Schule WLAN <wlan@example.com>"
 
 # Admin
 ADMIN_PASSWORD=sicheres-passwort
@@ -118,7 +118,7 @@ SESSION_SECRET=zufaelliger-langer-string
 Auf der passwortgeschützten WordPress-Seite einen **"Benutzerdefiniertes HTML"**-Block einfügen:
 
 ```html
-<form method="POST" action="https://wlan-zugang.schule-dietlikon.ch/magic-link/request">
+<form method="POST" action="https://wlan-zugang.example.com/magic-link/request">
   <p>
     <label for="wlan-email"><strong>E-Mail-Adresse</strong></label><br>
     <input type="email" name="email" id="wlan-email" required
